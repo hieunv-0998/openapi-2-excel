@@ -39,6 +39,11 @@ Example
   openapi2excel C:\openapi-spec.yml C:\openapi-spec.xlsx
 ```
 
+Run with source to debug (Linux)
+```text
+  dotnet run --configuration Release --framework net8.0 --project src/openapi2excel.cli -- data/openapi-spec.yaml /data/openapi-spec.xlsx
+```
+
 ## Container
 A container is available, allowing to run the tool without installing extra dependencies. Docker is required to be installed in your system.
 
