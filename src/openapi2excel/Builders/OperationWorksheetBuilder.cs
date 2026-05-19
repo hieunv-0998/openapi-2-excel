@@ -14,7 +14,7 @@ internal class OperationWorksheetBuilder(IXLWorkbook workbook, OpenApiDocumentat
    private int _attributesColumnsStartIndex;
 
    public IXLWorksheet Build(string path, OpenApiPathItem pathItem, OperationType operationType,
-      OpenApiOperation operation)
+      OpenApiOperation operation, IList<OpenApiSecurityRequirement>? documentSecurityRequirements = null)
    {
       var worksheet = GetWorksheetName(path, operation, operationType);
 
@@ -26,7 +26,7 @@ internal class OperationWorksheetBuilder(IXLWorkbook workbook, OpenApiDocumentat
 
       AddHomePageLink();
       AddOperationInfos(path, pathItem, operationType, operation);
-      AddRequestParameters(operation);
+      AddRequestParameters(operation, documentSecurityRequirements);
       AddRequestBody(operation);
       AddResponseBody(operation);
       AdjustLastNamesColumnToContents();
@@ -102,9 +102,9 @@ internal class OperationWorksheetBuilder(IXLWorkbook workbook, OpenApiDocumentat
       new OperationInfoBuilder(_actualRowPointer, _attributesColumnsStartIndex, _worksheet, Options)
          .AddOperationInfoSection(path, pathItem, operationType, operation);
 
-   private void AddRequestParameters(OpenApiOperation operation) =>
+   private void AddRequestParameters(OpenApiOperation operation, IList<OpenApiSecurityRequirement>? documentSecurityRequirements) =>
       new RequestParametersBuilder(_actualRowPointer, _attributesColumnsStartIndex, _worksheet, Options)
-         .AddRequestParametersPart(operation);
+         .AddRequestParametersPart(operation, documentSecurityRequirements);
 
    private void AddRequestBody(OpenApiOperation operation) =>
       new RequestBodyBuilder(_actualRowPointer, _attributesColumnsStartIndex, _worksheet, Options)

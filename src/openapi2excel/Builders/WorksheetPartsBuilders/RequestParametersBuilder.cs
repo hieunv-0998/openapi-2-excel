@@ -14,10 +14,14 @@ internal class RequestParametersBuilder(
 {
    private readonly OpenApiSchemaDescriptor _schemaDescriptor = new(worksheet, options);
 
-   public void AddRequestParametersPart(OpenApiOperation operation)
+   public void AddRequestParametersPart(OpenApiOperation operation, IList<OpenApiSecurityRequirement>? documentSecurityRequirements = null)
    {
       attributesColumnIndex = attributesColumnIndex > 1 ? attributesColumnIndex : 2;
-      if (!operation.Parameters.Any())
+
+      var hasSecurityRequirement = (operation.Security != null && operation.Security.Any())
+         || (documentSecurityRequirements != null && documentSecurityRequirements.Any());
+
+      if (!operation.Parameters.Any() && !hasSecurityRequirement)
          return;
 
       Cell(1).SetTextBold("PARAMETERS");
@@ -35,6 +39,12 @@ internal class RequestParametersBuilder(
             .SetBottomBorder(lastUsedColumn);
 
          ActualRow.MoveNext();
+
+         if (hasSecurityRequirement)
+         {
+            AddAuthorizationHeaderRow();
+         }
+
          foreach (var operationParameter in operation.Parameters)
          {
             AddPropertyRow(operationParameter);
@@ -43,6 +53,18 @@ internal class RequestParametersBuilder(
       }
 
       ActualRow.MoveNext(2);
+   }
+
+   private void AddAuthorizationHeaderRow()
+   {
+      var nextCell = Cell(1).SetText("Authorization")
+         .CellRight(attributesColumnIndex - 1).SetText("HEADER")
+         .CellRight().SetText("")
+         .CellRight();
+
+      var schema = new OpenApiSchema { Type = "string" };
+      _schemaDescriptor.AddSchemaDescriptionValues(schema, true, ActualRow, nextCell.Address.ColumnNumber, "Bearer {token}", true);
+      ActualRow.MoveNext();
    }
 
    private void AddPropertyRow(OpenApiParameter parameter)

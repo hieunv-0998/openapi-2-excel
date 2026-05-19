@@ -41,11 +41,12 @@ public static class OpenApiDocumentationGenerator
       infoWorksheetsBuilder.Build(readResult.OpenApiDocument);
 
       var worksheetBuilder = new OperationWorksheetBuilder(workbook, options);
+      var documentSecurityRequirements = readResult.OpenApiDocument.SecurityRequirements;
       readResult.OpenApiDocument.Paths.ForEach(path
          => path.Value.Operations.ForEach(operation
                =>
                {
-                  var worksheet = worksheetBuilder.Build(path.Key, path.Value, operation.Key, operation.Value);
+                  var worksheet = worksheetBuilder.Build(path.Key, path.Value, operation.Key, operation.Value, documentSecurityRequirements);
                   infoWorksheetsBuilder.AddLink(operation.Key, path.Key, worksheet);
                }
          ));
